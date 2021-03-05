@@ -6,6 +6,7 @@ import sys
 
 # Project Packages
 from Proyecto_TISG.Package import PG
+from Proyecto_TISG.Frame_main import Frame_main
 
 # third party packages
 import wx
@@ -117,11 +118,14 @@ class Panel(wx.Panel):
                 Contraseña = cursor.fetchall()  # Colectamos en un tuple el valor seleccionado
 
                 if Contraseña:
-                    if int(Contraseña[0][0]) == int(passwrd):  # En este espacio de código, recién se debe convertir
-                        print("me cojo a tu prima")            # a int passwrd, porque sino, ocurre un error
+                    if str(int(Contraseña[0][0])) == passwrd: # convertimos a int el valor de contraseña para así,
+                        # poder eliminar sus parenthesis, luego lo pasamos a str para compararlo con lo que introduce
+                        # el usuario, lo cual es str
+                        Frame_main.Frame_main(None, title="andy", size=(500, 500))
 
                     else:
                         PG.show_messange(Panel, "Contraseña no válida")
+                        print(str(int(Contraseña[0][0])))
 
                 else:
                     PG.show_messange(Panel, "Usuario no existente")
