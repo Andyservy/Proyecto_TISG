@@ -19,7 +19,7 @@ from Proyecto_TISG.info import (__author__,
                                 __description__,
                                 __descriptionfull__, )
 
-from Proyecto_TISG.Formulary import Ventana
+from Proyecto_TISG.Formulary.Formulary import Ventana
 
 
 def main():

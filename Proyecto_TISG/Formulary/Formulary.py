@@ -30,22 +30,22 @@ class Ventana(wx.Frame):
         self.SetBackgroundColour(colour)
         self.Centre()
         self.SetWindowStyleFlag(style)
-        Panel(self)
+        panel = Panel(parent=self)
 
 
 class Panel(wx.Panel):
 
     # noinspection PyCompatibility
     def __init__(self, parent):
-        super().__init__(parent)
+        super(Panel, self).__init__(parent)
 
         self.ENTRADA_Contraseña = wx.TextCtrl(self, -1,
                                               style=wx.BORDER_NONE | wx.ALIGN_CENTER | wx.TE_PASSWORD | wx.TE_PROCESS_ENTER)
         self.ENTRADA_Name = wx.TextCtrl(self, -1, style=wx.BORDER_NONE | wx.ALIGN_CENTER & ~ wx.TE_PASSWORD)
 
-        self.FRONT_END()
+        self.initGUI()
 
-    def FRONT_END(self):
+    def initGUI(self):
         # Contenedores
         Box_Main = wx.BoxSizer(wx.VERTICAL)
         Box_Entrada = wx.BoxSizer(wx.VERTICAL)
@@ -61,7 +61,7 @@ class Panel(wx.Panel):
         BTN_OK = wx.Button(self, -1, 'OK')
         Box_Cancel_OK.Add(BTN_OK, 1, wx.EXPAND | wx.ALL, 15)
 
-        BTN_Cancel = wx.Button(self, -1, 'CANCEL')
+        BTN_Cancel = wx.Button(self, -1, "CANCEL")
         Box_Cancel_OK.Add(BTN_Cancel, 1, wx.EXPAND | wx.ALL, 15)
 
         # AÑADIENDO LOS BOXERS HIJOS AL PADRE
@@ -99,7 +99,8 @@ class Panel(wx.Panel):
         PG.Btnbicolor(Botones_OK_CANCEL, '#2C4158', '#384A5F')
 
     def OnClickCancel(self, event):
-        sys.exit(0)
+
+        self.Parent.Destroy()
 
     def OnClickOK(self, event):
         user_name = self.ENTRADA_Name.GetValue()
@@ -118,10 +119,12 @@ class Panel(wx.Panel):
                 Contraseña = cursor.fetchall()  # Colectamos en un tuple el valor seleccionado
 
                 if Contraseña:
-                    if str(int(Contraseña[0][0])) == passwrd: # convertimos a int el valor de contraseña para así,
+                    if str(int(Contraseña[0][0])) == passwrd:  # convertimos a int el valor de contraseña para así,
                         # poder eliminar sus parenthesis, luego lo pasamos a str para compararlo con lo que introduce
                         # el usuario, lo cual es str
-                        Frame_main.Frame_main(None, title="andy", size=(500, 500))
+                        Frame_main.Frame_main(None, title="Boost Mannager", size=(500, 500))
+                        self.Parent.Destroy()
+                        db.close()
 
                     else:
                         PG.show_messange(Panel, "Contraseña no válida")
