@@ -2,8 +2,8 @@
 import wx
 import wx.lib.agw.gradientbutton as GB
 
-
 from Proyecto_TISG.Package import PG
+
 
 class Frame_main(wx.Frame):
     def __init__(self, parent, title, size, colour, Name_User):
@@ -36,13 +36,14 @@ class Menú_Main(wx.Panel):
         bmpBtn_Configuration = GB.GradientButton(self, wx.ID_ANY, label="Configuración")
         Data_sesión.Add(bmpBtn_Configuration, 1, wx.EXPAND | wx.ALL, 20)
 
-
         Facturación = wx.Button(self, -1, 'FACTURACIÓN')
         Inventario = wx.Button(self, -1, 'INVENTARIO')
         Utilería = wx.Button(self, -1, 'UTILERÍA')
         Estadísticas = wx.Button(self, -1, 'ESTADÍSTICAS')
         Agenda = wx.Button(self, -1, 'AGENDA')
         Nomina = wx.Button(self, -1, 'NOMINA')
+
+        Items_List = [Facturación, Inventario, Utilería, Estadísticas, Agenda, Nomina]
 
         # _____________________________________________________________________________________________________________
 
@@ -68,8 +69,8 @@ class Menú_Main(wx.Panel):
         self.SetSizer(box_main)
 
         # COLOUR and SIZE
-        Greeting.SetBackgroundColour(colour_universal)
         Font_Greeting = wx.Font(20, wx.MODERN, wx.NORMAL, wx.NORMAL)
+        Greeting.SetBackgroundColour(colour_universal)
         Greeting.SetForegroundColour("#FFFFFF")
         Greeting.SetFont(Font_Greeting)
 
@@ -77,10 +78,17 @@ class Menú_Main(wx.Panel):
         bmpBtn_Configuration.SetFont(Font_bmp_configuration)
         bmpBtn_Configuration.SetForegroundColour("#FFFFFF")
 
+        for button_font in Items_List:
+
+            Font_Items = wx.Font(20, wx.SWISS, wx.NORMAL, wx.LIGHT)
+            button_font.SetFont(Font_Items)
+            button_font.SetForegroundColour("#FFFFFF")
+
         # ESTILOS DE BOTONES
 
-        Items_Border = [Facturación, Inventario, Utilería, Estadísticas, Agenda, Nomina]
-        PG.Btnbicolor(Items_Border, '#2C4158', '#384A5F')
+        PG.Btnbicolor(Items_List, '#2C4158', '#384A5F')
+
+
 """
 Al usar show () fuera de la definición de los atributos, se debe establecer una variable que herede la clase que 
 acumula al Frame, ya que con esto se está resolviendo el primer parámetro, que en este caso sería self (solo admite 
