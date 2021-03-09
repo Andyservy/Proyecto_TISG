@@ -6,7 +6,7 @@ import sys
 
 # Project Packages
 from Proyecto_TISG.Package import PG
-from Proyecto_TISG.Frame_main import Frame_main
+from Proyecto_TISG.Frame_main.Frame_main import Frame_main
 
 # third party packages
 import wx
@@ -20,7 +20,10 @@ Advertencias:
 - Un caso en el que definitivamente tienes que hacer event.Skip()es en el controlador al vincularte a 
   wx.EVT_CLOSE. Si no lo hace, el cierre no sucederá correctamente
 - Revisar para la propagación de eventos: https://wiki.wxpython.org/EventPropagation
+- Herencia multiple: https://realpython.com/python-super/#an-overview-of-pythons-super-function
 """
+
+Title = "Boost Mannager"
 
 
 class Ventana(wx.Frame):
@@ -30,20 +33,44 @@ class Ventana(wx.Frame):
         self.SetBackgroundColour(colour)
         self.Centre()
         self.SetWindowStyleFlag(style)
-        panel = Panel(parent=self)
+        panel = Panel(self, colour)
+
+        panel.BTN_Cancel.Bind(wx.EVT_BUTTON, self.OnClickCancel)
+
+    def OnClickCancel(self, event):
+        self.Destroy()
 
 
 class Panel(wx.Panel):
 
     # noinspection PyCompatibility
-    def __init__(self, parent):
+    def __init__(self, parent, Colour):
         super(Panel, self).__init__(parent)
 
+        self.BTN_Cancel = wx.Button(self, -1, "CANCEL")
         self.ENTRADA_Contraseña = wx.TextCtrl(self, -1,
                                               style=wx.BORDER_NONE | wx.ALIGN_CENTER | wx.TE_PASSWORD | wx.TE_PROCESS_ENTER)
-        self.ENTRADA_Name = wx.TextCtrl(self, -1, style=wx.BORDER_NONE | wx.ALIGN_CENTER & ~ wx.TE_PASSWORD)
 
+        self.ENTRADA_Name = wx.TextCtrl(self, -1,
+                                        style=wx.BORDER_NONE | wx.ALIGN_CENTER & ~ wx.TE_PASSWORD)
         self.initGUI()
+
+        self.Color_font = Colour
+
+        """
+        RECORDATORIO:
+        def surface_area(self):
+            face_area = super(Square, self).area()
+            return face_area * 6
+
+        def volume(self):
+            face_area = super(Square, self).area()
+            return face_area * self.length
+            
+        En este ejemplo específico, el comportamiento no cambia. Pero imagina que Square también implementó una 
+        .area()función que querías asegurarte de Cube que no se usara. Llamar super()de esta manera le permite hacer 
+        eso. 
+        """
 
     def initGUI(self):
         # Contenedores
@@ -59,10 +86,10 @@ class Panel(wx.Panel):
         Box_Entrada.Add(self.ENTRADA_Contraseña, 1, wx.EXPAND | wx.ALL, 10)
 
         BTN_OK = wx.Button(self, -1, 'OK')
+
         Box_Cancel_OK.Add(BTN_OK, 1, wx.EXPAND | wx.ALL, 15)
 
-        BTN_Cancel = wx.Button(self, -1, "CANCEL")
-        Box_Cancel_OK.Add(BTN_Cancel, 1, wx.EXPAND | wx.ALL, 15)
+        Box_Cancel_OK.Add(self.BTN_Cancel, 1, wx.EXPAND | wx.ALL, 15)
 
         # AÑADIENDO LOS BOXERS HIJOS AL PADRE
 
@@ -75,7 +102,6 @@ class Panel(wx.Panel):
 
         # EVENTOS
 
-        BTN_Cancel.Bind(wx.EVT_BUTTON, self.OnClickCancel)
         BTN_OK.Bind(wx.EVT_BUTTON, self.OnClickOK)
 
         # MODIFICANDO FUENTES
@@ -86,7 +112,7 @@ class Panel(wx.Panel):
 
         Font_Botones = wx.Font(18, wx.ROMAN, wx.NORMAL, wx.NORMAL)
         BTN_OK.SetFont(Font_Botones)
-        BTN_Cancel.SetFont(Font_Botones)
+        self.BTN_Cancel.SetFont(Font_Botones)
 
         # MODIFICANDO COLOR
 
@@ -95,16 +121,12 @@ class Panel(wx.Panel):
         self.ENTRADA_Contraseña.SetBackgroundColour('#283747')
 
         # ESTILO A LOS BOTONES
-        Botones_OK_CANCEL = [BTN_OK, BTN_Cancel]
+        Botones_OK_CANCEL = [BTN_OK, self.BTN_Cancel]
         PG.Btnbicolor(Botones_OK_CANCEL, '#2C4158', '#384A5F')
 
-    def OnClickCancel(self, event):
-
-        self.Parent.Destroy()
-
     def OnClickOK(self, event):
-        user_name = self.ENTRADA_Name.GetValue()
-        passwrd = self.ENTRADA_Contraseña.GetValue()
+        user_name = "señora"#self.ENTRADA_Name.GetValue()
+        passwrd = "123456"#self.ENTRADA_Contraseña.GetValue()
         consult_mysql = "SELECT Contraseña FROM login_history WHERE Nombre_User = '%s'" % user_name
 
         # Verifica si estan vacios
@@ -122,9 +144,47 @@ class Panel(wx.Panel):
                     if str(int(Contraseña[0][0])) == passwrd:  # convertimos a int el valor de contraseña para así,
                         # poder eliminar sus parenthesis, luego lo pasamos a str para compararlo con lo que introduce
                         # el usuario, lo cual es str
-                        Frame_main.Frame_main(None, title="Boost Mannager", size=(500, 500))
+
+                        Andy = Frame_main(None, Title, (800, 600), self.Color_font, user_name)
+                        Andy.Show()
+                        Andy.Fit()
+                        Andy.SetMinSize(Andy.GetEffectiveMinSize())
                         self.Parent.Destroy()
                         db.close()
+
+                        """
+                        Para destruir la ventana directamente, se necesita especificar el parámetro en Panel, 
+                        para que, al ser usado en Ventana, se introduzca un self, así:
+                        
+                        import wx
+
+                        class MainScene(wx.Frame):
+                          def __init__(self, parent, title):
+                            super(MainScene, self).__init__(parent, title=title, size=(300, 300))
+                            self.InitUI()
+
+                          def InitUI(self):
+                            # Define Master Panel
+                            masterPanel = wx.Panel(self)
+                            masterPanel.SetBackgroundColour("gold")
+                            horzbox = wx.BoxSizer(wx.HORIZONTAL)
+                            subPanel=SubPanel(parent=masterPanel, size=(200, 200), mainWin=self)
+
+                        class SubPanel(wx.Panel):
+                          def __init__(self, parent, size, mainWin):
+                            wx.Panel.__init__(self, parent, size=size)
+                            self.mainWin = mainWin
+                            self.SetBackgroundColour("gray")
+                            vbox = wx.BoxSizer(wx.VERTICAL)
+                            exit_button = wx.Button(self, label="Exit")
+                            exit_button.Bind(wx.EVT_BUTTON, self.onClose)
+                            vbox.Add(exit_button, proportion=1, flag=wx.ALL | wx.CENTER, border=5)
+                            self.SetSizer(vbox)
+                        
+                          def onClose(self, event): 
+                            print('Called from SubPanel')      
+                            self.mainWin.Destroy()
+                        """  # Si alguna vez se necesita especificar que es lo que se debe cerrar
 
                     else:
                         PG.show_messange(Panel, "Contraseña no válida")

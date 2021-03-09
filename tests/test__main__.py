@@ -1,38 +1,17 @@
 import wx
 
-class Example(wx.Frame):
-    def __init__(self, *args, **kwargs):
-        super(Example, self).__init__(*args, **kwargs)
+app=wx.App()
 
-        panel = wx.Panel(self)
+frm = wx.Frame(None, title='title')
+pan = wx.Panel(frm)
 
-        # left panel
-        lPan = wx.Panel(panel)
-        lPan.SetBackgroundColour('#9C4141')
-        lPan.Bind(wx.EVT_LEFT_DOWN, lambda e, p='left': self.onLeftDown(e, p))
-        lPan.Bind(wx.EVT_LEFT_UP, lambda e, p='left': self.onLeftUp(e, p))
+sizer = wx.BoxSizer(wx.HORIZONTAL)
+sizer.Add(wx.SpinCtrl(pan))
+sizer.Add(wx.SpinCtrl(pan))
 
-        # right panel
-        rPan = wx.Panel(panel)
-        rPan.SetBackgroundColour('#415C9C')
-        rPan.Bind(wx.EVT_LEFT_DOWN, lambda e, p='right': self.onLeftDown(e, p))
-        rPan.Bind(wx.EVT_LEFT_UP, lambda e, p='right': self.onLeftUp(e, p))
+pan.SetSizerAndFit(sizer)
+frm.Fit()
+frm.SetMinSize(frm.GetEffectiveMinSize())
+frm.Show()
 
-        # box sizer
-        hbox = wx.BoxSizer(wx.HORIZONTAL)
-        hbox.Add(lPan, 1, flag=wx.EXPAND)
-        hbox.Add(rPan, 1, flag=wx.EXPAND)
-        panel.SetSizer(hbox)
-
-        self.Show()
-
-    def onLeftDown(self, e, panel):
-        print('Mouse down on {} panel'.format(panel))
-
-    def onLeftUp(self, e, panel):
-        print('Mouse up on {} panel'.format(panel))
-
-if __name__ == '__main__':
-    app = wx.App()
-    Example(None, title='Down and Up click', size=(200, 150))
-    app.MainLoop()
+app.MainLoop()

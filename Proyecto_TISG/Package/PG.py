@@ -61,7 +61,7 @@ class Btnbicolor(object):
 
 
 def show_messange(self, message):
-    dlg = wx.MessageDialog(None, message, "error", wx.OK | wx.ICON_QUESTION)
+    dlg = wx.MessageDialog(None, message, "No valido", wx.OK | wx.ICON_QUESTION)
     if dlg.ShowModal() == wx.ID_YES:
         pass
     dlg.Destroy()
