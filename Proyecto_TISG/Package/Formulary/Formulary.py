@@ -5,9 +5,7 @@
 import sys
 
 # Project Packages
-from Proyecto_TISG.Package import PG
-from Proyecto_TISG.Frame_main.Frame_main import Frame_main
-
+from Proyecto_TISG.Package import Btnbicolor, show_messange
 # third party packages
 import wx
 import mysql.connector
@@ -26,19 +24,29 @@ Advertencias:
 Title = "Boost Mannager"
 
 
-class Ventana(wx.Frame):
-    def __init__(self, parent, title, size, colour, style):
-        super(Ventana, self).__init__(parent, title=title, size=size)
+class Verificación(wx.Dialog):
+    """
+    - Para hacer la llamada, se debe usar ShowModal (Esto limita al usuario a no saltarse la verificación)
+    - Tener en cuenta que esta clase debe ir antes del pedazo código que quiere proteger
 
-        self.SetBackgroundColour(colour)
+    Para insertar las condiciones, se recomienda llamar a if Variable.OnClickOK
+
+    Al condicionar OnClickCancel, si se cierra el padre también, debe especificar un control de error
+    """
+
+    def __init__(self, parent):
+        super(Verificación, self).__init__(parent, title="Boost Mannager", size=(500, 300))
+
+        Colour = "#212F3C"
+
+        self.SetBackgroundColour(Colour)
         self.Centre()
-        self.SetWindowStyleFlag(style)
-        panel = Panel(self, colour)
+        self.SetWindowStyleFlag(wx.BORDER_NONE)
 
-        panel.BTN_Cancel.Bind(wx.EVT_BUTTON, self.OnClickCancel)
+        self.panel = Panel(self, Colour)
+        self.Name_User = self.panel.ENTRADA_Name
 
-    def OnClickCancel(self, event):
-        self.Destroy()
+        self.panel.BTN_Cancel.Bind(wx.EVT_BUTTON, self.Parent.OnClickCancel)
 
 
 class Panel(wx.Panel):
@@ -48,11 +56,15 @@ class Panel(wx.Panel):
         super(Panel, self).__init__(parent)
 
         self.BTN_Cancel = wx.Button(self, -1, "CANCEL")
+
+        # ------------------------------------------------------------------------------------------------------------------
         self.ENTRADA_Contraseña = wx.TextCtrl(self, -1,
                                               style=wx.BORDER_NONE | wx.ALIGN_CENTER | wx.TE_PASSWORD | wx.TE_PROCESS_ENTER)
 
         self.ENTRADA_Name = wx.TextCtrl(self, -1,
                                         style=wx.BORDER_NONE | wx.ALIGN_CENTER & ~ wx.TE_PASSWORD)
+        # ------------------------------------------------------------------------------------------------------------------
+
         self.initGUI()
 
         self.Color_font = Colour
@@ -122,15 +134,17 @@ class Panel(wx.Panel):
 
         # ESTILO A LOS BOTONES
         Botones_OK_CANCEL = [BTN_OK, self.BTN_Cancel]
-        PG.Btnbicolor(Botones_OK_CANCEL, '#2C4158', '#384A5F')
+        Btnbicolor(Botones_OK_CANCEL, '#2C4158', '#384A5F')
 
     def OnClickOK(self, event):
-        user_name = "señora"#self.ENTRADA_Name.GetValue()
-        passwrd = "123456"#self.ENTRADA_Contraseña.GetValue()
+
+        user_name = self.ENTRADA_Name.GetValue()
+        user_contraseña = self.ENTRADA_Contraseña.GetValue()
+
         consult_mysql = "SELECT Contraseña FROM login_history WHERE Nombre_User = '%s'" % user_name
 
-        # Verifica si estan vacios
-        if user_name and passwrd:
+        # Verifica si están vacíos
+        if user_name and user_contraseña:
             db = mysql.connector.connect(host="127.0.0.1", user="root", password="76743571mysql",
                                          database="boost_mannager")
             cursor = db.cursor()  # Conectamos a la base de datos
@@ -141,14 +155,10 @@ class Panel(wx.Panel):
                 Contraseña = cursor.fetchall()  # Colectamos en un tuple el valor seleccionado
 
                 if Contraseña:
-                    if str(int(Contraseña[0][0])) == passwrd:  # convertimos a int el valor de contraseña para así,
+                    if str(int(Contraseña[0][
+                                   0])) == user_contraseña:  # convertimos a int el valor de contraseña para así,
                         # poder eliminar sus parenthesis, luego lo pasamos a str para compararlo con lo que introduce
                         # el usuario, lo cual es str
-
-                        Andy = Frame_main(None, Title, (800, 600), self.Color_font, user_name)
-                        Andy.Show()
-                        Andy.Fit()
-                        Andy.SetMinSize(Andy.GetEffectiveMinSize())
                         self.Parent.Destroy()
                         db.close()
 
@@ -187,11 +197,11 @@ class Panel(wx.Panel):
                         """  # Si alguna vez se necesita especificar que es lo que se debe cerrar
 
                     else:
-                        PG.show_messange(Panel, "Contraseña no válida")
+                        show_messange(Panel, "Contraseña no válida")
                         print(str(int(Contraseña[0][0])))
 
                 else:
-                    PG.show_messange(Panel, "Usuario no existente")
+                    show_messange(Panel, "Usuario no existente")
 
             except mysql.connector.errors.ProgrammingError:
                 db.rollback()
@@ -200,4 +210,4 @@ class Panel(wx.Panel):
                 db.close()
 
         else:
-            PG.show_messange(Panel, "Nombre de usuario o la contraseña no deberían estar vacíos")
+            show_messange(Panel, "Nombre de usuario o la contraseña no deberían estar vacíos")
