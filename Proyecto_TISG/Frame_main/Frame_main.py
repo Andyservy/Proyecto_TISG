@@ -9,25 +9,23 @@ from Proyecto_TISG.Package.Formulary import Verificación, Panel
 class frame_main(wx.Frame):
     def __init__(self, parent, title, size, colour):
         super(frame_main, self).__init__(parent, title=title, size=size)
+        self.Verificación_Call = Verificación(self)
         self.Centre()
         self.GUI_init(colour)
 
     def GUI_init(self, colour):
-        Verificación_Call = Verificación(self)
-        Verificación_Call.ShowModal()
-
-        try:
-
-            Nombre_Usuario = Verificación_Call.Name_User
-            menu_main = menú_Main(self, "Nombre_Usuario", colour)
-
-        except RuntimeError:
-            exit(0)
+        self.Verificación_Call.Centre()
+        self.Verificación_Call.ShowModal()
 
     def OnClickCancel(self, event):
         self.Close()
 
+    def OnClickOK(self, event):
 
+        Nombre_Usuario = self.Verificación_Call.Name_User
+        menu_main = menú_Main(self, "Nombre_Usuario", "#212F3C")
+
+        event.Skip()
 
 
 """

@@ -26,10 +26,10 @@ Title = "Boost Mannager"
 
 class Verificación(wx.Dialog):
     """
-    - Para hacer la llamada, se debe usar ShowModal (Esto limita al usuario a no saltarse la verificación)
-    - Tener en cuenta que esta clase debe ir antes del pedazo código que quiere proteger
 
-    Para insertar las condiciones, se recomienda llamar a if Variable.OnClickOK
+    - Para hacer la llamada, se debe usar ShowModal (Esto limita al usuario a no saltarse la verificación)
+    - Las definiciones de los controles OK y Cancel deben llamarse por OnClickOk y OnclickCancel y deben estar ubicadas dentro del padre
+    - El codigo a proteger debería estar dentro de la definición de OnClickOK
 
     Al condicionar OnClickCancel, si se cierra el padre también, debe especificar un control de error
     """
@@ -40,18 +40,19 @@ class Verificación(wx.Dialog):
         Colour = "#212F3C"
 
         self.SetBackgroundColour(Colour)
-        self.Centre()
-        self.SetWindowStyleFlag(wx.BORDER_NONE)
 
         self.panel = Panel(self, Colour)
         self.Name_User = self.panel.ENTRADA_Name
 
         self.panel.BTN_Cancel.Bind(wx.EVT_BUTTON, self.Parent.OnClickCancel)
 
+        self.SetWindowStyleFlag(wx.BORDER_NONE)
+
 
 class Panel(wx.Panel):
 
-    # noinspection PyCompatibility
+    # noinspection
+
     def __init__(self, parent, Colour):
         super(Panel, self).__init__(parent)
 
@@ -63,7 +64,12 @@ class Panel(wx.Panel):
 
         self.ENTRADA_Name = wx.TextCtrl(self, -1,
                                         style=wx.BORDER_NONE | wx.ALIGN_CENTER & ~ wx.TE_PASSWORD)
+
         # ------------------------------------------------------------------------------------------------------------------
+
+        self.user_contraseña = "123456"  # self.ENTRADA_Contraseña.GetValue()
+        self.user_name = "señora"  # self.ENTRADA_Name.GetValue()
+        Panel.Contraseña_reestablecer = self.user_contraseña
 
         self.initGUI()
 
@@ -115,6 +121,7 @@ class Panel(wx.Panel):
         # EVENTOS
 
         BTN_OK.Bind(wx.EVT_BUTTON, self.OnClickOK)
+        BTN_OK.Bind(wx.EVT_BUTTON, self.GrandParent.OnClickOK)
 
         # MODIFICANDO FUENTES
 
@@ -138,13 +145,10 @@ class Panel(wx.Panel):
 
     def OnClickOK(self, event):
 
-        user_name = self.ENTRADA_Name.GetValue()
-        user_contraseña = self.ENTRADA_Contraseña.GetValue()
-
-        consult_mysql = "SELECT Contraseña FROM login_history WHERE Nombre_User = '%s'" % user_name
+        consult_mysql = "SELECT Contraseña FROM login_history WHERE Nombre_User = '%s'" % self.user_name
 
         # Verifica si están vacíos
-        if user_name and user_contraseña:
+        if self.user_name and self.user_contraseña:
             db = mysql.connector.connect(host="127.0.0.1", user="root", password="76743571mysql",
                                          database="boost_mannager")
             cursor = db.cursor()  # Conectamos a la base de datos
@@ -156,10 +160,10 @@ class Panel(wx.Panel):
 
                 if Contraseña:
                     if str(int(Contraseña[0][
-                                   0])) == user_contraseña:  # convertimos a int el valor de contraseña para así,
+                                   0])) == self.user_contraseña:  # convertimos a int el valor de contraseña para así,
                         # poder eliminar sus parenthesis, luego lo pasamos a str para compararlo con lo que introduce
                         # el usuario, lo cual es str
-                        self.Parent.Destroy()
+                        self.Parent.Close()
                         db.close()
 
                         """
@@ -211,3 +215,5 @@ class Panel(wx.Panel):
 
         else:
             show_messange(Panel, "Nombre de usuario o la contraseña no deberían estar vacíos")
+
+        event.Skip()

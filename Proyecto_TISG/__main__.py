@@ -1,13 +1,17 @@
 import wx
 
 from Proyecto_TISG.Frame_main import frame_main
+from Proyecto_TISG.Frame_main.Configuración import Restablecimiento_de_datos
 
 
 def main():
     app = wx.App()
 
     Andy = frame_main(None, title='Boost Manager', size=(1000, 700), colour="#212F3C")
-    Andy.Show()
+    try:
+        Andy.Show()
+    except RuntimeError:
+        exit(0)
 
     app.MainLoop()
 

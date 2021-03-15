@@ -8,6 +8,7 @@ mysql = "*"
 wx = "*"
 mysql-connector = "*"
 nose2 = "*"
+pillow = "*"
 
 [dev-packages]
 

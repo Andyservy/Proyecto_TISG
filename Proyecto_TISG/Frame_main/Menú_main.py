@@ -4,6 +4,7 @@ import wx.lib.agw.gradientbutton as GB
 
 # Package Project
 from Proyecto_TISG.Package import Btnbicolor, Formulary
+from Proyecto_TISG.Frame_main.Configuración import Restablecimiento_de_datos
 
 
 class menú_Main(wx.Panel):
@@ -87,9 +88,23 @@ class menú_Main(wx.Panel):
 
     def OnClick_Configuración(self, event):
 
+        self.Verificación_Configuración.Centre()
         self.Verificación_Configuración.ShowModal()
 
+    # _________________________________________________________________________________________________________________
+    # LLAMADAS A LAS FUNCIONES DE VERIFICACIÓN_CONFIGURACIÓN (en la descripción se especifica las razones)
 
     def OnClickCancel(self, event):
+
         self.Verificación_Configuración.Close()
+
+    def OnClickOK(self, event):
+
+        Confi_sesion = Restablecimiento_de_datos(self)
+        Confi_sesion.ShowModal()
+
+        event.Skip()
+
+    # _________________________________________________________________________________________________________________
+
 

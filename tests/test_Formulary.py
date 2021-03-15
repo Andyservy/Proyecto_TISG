@@ -1,22 +1,5 @@
 import wx
-
-########################################################################
-class MyDlg(wx.Dialog):
-    """"""
-
-    #----------------------------------------------------------------------
-    def __init__(self):
-        """Constructor"""
-        wx.Dialog.__init__(self, None, title="I'm a dialog!")
-
-        lbl = wx.StaticText(self, label="Hi from the panel's init!")
-        btn = wx.Button(self, id=wx.ID_OK, label="Close me")
-
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(lbl, 0, wx.ALL, 5)
-        sizer.Add(btn, 0, wx.ALL, 5)
-        self.SetSizer(sizer)
-
+import wx.lib.masked as masked
 
 ########################################################################
 class MyPanel(wx.Panel):
@@ -25,33 +8,31 @@ class MyPanel(wx.Panel):
     #----------------------------------------------------------------------
     def __init__(self, parent):
         """Constructor"""
-        wx.Panel.__init__(self, parent)
+        wx.Panel.__init__(self, parent=parent)
 
-        # show a custom dialog
-        dlg = MyDlg()
-        dlg.ShowModal()
-        dlg.Destroy()
+        control = ["Phone No", "(###) ###-#### x:###", "", 'F^-', "^\(\d{3}\) \d{3}-\d{4}", '','','']
+        maskText = masked.TextCtrl(self, 
+                                   mask = control[1],
+                                   excludeChars = control[2],
+                                   formatcodes  = control[3],
+                                   includeChars = "",
+                                   validRegex   = control[4],
+                                   validRange   = control[5],
+                                   choices      = control[6],
+                                   choiceRequired = True,
+                                   defaultValue = control[7],
+                                   demo         = True,
+                                   name         = control[0],
+                                   style=wx.TE_PROCESS_ENTER)
+        maskText.Bind(wx.EVT_KEY_DOWN, self.onEnter)
 
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-
-    def OnPaint(self, evt):
-        pdc = wx.PaintDC(self)
-        try:
-            dc = wx.GCDC(pdc)
-        except:
-            dc = pdc
-        rect = wx.Rect(0,0, 100, 100)
-        for RGB, pos in [((178,  34,  34), ( 50,  90)),
-                         (( 35, 142,  35), (110, 150)),
-                         ((  0,   0, 139), (170,  90))
-                         ]:
-            r, g, b = RGB
-            penclr   = wx.Colour(r, g, b, wx.ALPHA_OPAQUE)
-            brushclr = wx.Colour(r, g, b, 128)   # half transparent
-            dc.SetPen(wx.Pen(penclr))
-            dc.SetBrush(wx.Brush(brushclr))
-            rect.SetPosition(pos)
-            dc.DrawRoundedRectangleRect(rect, 8)
+    #----------------------------------------------------------------------
+    def onEnter(self, event):
+        """"""
+        keycode = event.GetKeyCode()
+        if keycode == wx.WXK_RETURN or keycode == wx.WXK_NUMPAD_ENTER: 
+            print ("you pressed ENTER!")
+        event.Skip()
 
 ########################################################################
 class MyFrame(wx.Frame):
@@ -60,21 +41,11 @@ class MyFrame(wx.Frame):
     #----------------------------------------------------------------------
     def __init__(self):
         """Constructor"""
-        wx.Frame.__init__(self, None, title="Example frame")
-
-        # show a MessageDialog
-        style = wx.OK|wx.ICON_INFORMATION
-        dlg = wx.MessageDialog(parent=None,
-                               message="Hello from the frame's init",
-                               caption="Information", style=style)
-        dlg.ShowModal()
-        dlg.Destroy()
-
-        # create panel
+        wx.Frame.__init__(self, None, title="Masked!")
         panel = MyPanel(self)
+        self.Show()
 
 if __name__ == "__main__":
     app = wx.App(False)
     frame = MyFrame()
-    frame.Show()
     app.MainLoop()
